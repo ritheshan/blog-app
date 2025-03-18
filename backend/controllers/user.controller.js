@@ -1,5 +1,8 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import createTokenAndSaveCookie from "../jwt/AuthToken.js";
+import { v2 as cloudinary } from 'cloudinary';
+
 
 export const registerUser = async (req, res) => {
   try {
@@ -48,9 +51,11 @@ const hashedPassword = await bcrypt.hash(password, 10);
     password: hashedPassword,
   });
     await newUser.save();
-
-    console.log("User registered:", newUser);
-    res.status(201).json({ message: "User registered successfully", user: newUser });
+    if (newUser) {
+  console.log("User registered successfully:", newUser);
+  await createTokenAndSaveCookie(newUser._id, res);
+  res.status(201).json({ message: "User registered successfully", user: newUser });
+}
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ message: "Server error" });
