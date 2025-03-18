@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import createTokenAndSaveCookie from "../jwt/AuthToken.js";
+import createTokenAndSaveCookie from "../jwt/authtoken.js";
 import { v2 as cloudinary } from 'cloudinary';
 
 
@@ -54,10 +54,69 @@ const hashedPassword = await bcrypt.hash(password, 10);
     if (newUser) {
   console.log("User registered successfully:", newUser);
   await createTokenAndSaveCookie(newUser._id, res);
-  res.status(201).json({ message: "User registered successfully", user: newUser });
+  res.status(201).json({ message: "User registered successfully", user: newUser  ,token: token });
 }
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ message: "Server error" });
   }
+};
+
+// login user
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+
+    // Validate required fields
+    if (!email || !password || !role) {
+      console.log("Error: Please fill all required fields");
+      return res.status(400).json({ message: "Please fill all required fields" });
+    }
+
+    // Find user in database
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      console.log("Error: User not found");
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch || user.role !== role) {
+      console.log("Error: Invalid email, password, or role");
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Remove password from response
+    user.password = undefined;
+
+    // Generate token and send response
+    await createTokenAndSaveCookie(user._id, res);
+    res.status(200).json({
+      message: "Logged in successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        education: user.education,
+        token: user.token,
+      },
+    });
+
+  } catch (error) {
+    console.error("Login Error:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+// logout user
+export const logoutUser = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Secure in production
+    sameSite: "strict",
+  });
+
+  console.log("User logged out successfully");
+  res.status(200).json({ message: "Logged out successfully" });
 };

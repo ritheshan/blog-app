@@ -44,7 +44,10 @@ const userSchema = new mongoose.Schema({
     select: false, // Ensures password is not returned in queries
     minlength: 8, // Minimum password length
   },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  token : {
+    type: String,
+  }
 });
 
 const User = mongoose.model("User", userSchema);
