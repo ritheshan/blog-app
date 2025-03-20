@@ -2,9 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import userRoutes from "./routes/user.route.js"; // Import user routes
+import blogRoutes from "./routes/blog.route.js"; // Import blog routes
 import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from 'cloudinary';
-
+import cookieParser from "cookie-parser";
+import cors from "cors";  
 
 dotenv.config(); // Load environment variables
 
@@ -14,6 +16,15 @@ const mongoURI = process.env.MONGO_URI; // Get MongoDB URI from .env
 
 // Middleware to parse JSON
 app.use(express.json());
+
+app.use(cookieParser());
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+ 
+}));
 
 // Middleware for file uploads
 app.use(fileUpload(
@@ -34,7 +45,7 @@ mongoose
 
 // Routes
 app.use("/api/users", userRoutes); // Mount user routes
-
+app.use("/api/blogs", blogRoutes); // Mount blog routes
 //cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
