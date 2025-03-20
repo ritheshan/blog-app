@@ -120,3 +120,34 @@ export const logoutUser = (req, res) => {
   console.log("User logged out successfully");
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+
+// Get logged-in user's profile
+export const getMyProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select("-password"); // Exclude password from response
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get all users with the "admin" role
+export const getAdmins = async (req, res) => {
+  try {
+      const admins = await User.find({ role: "admin" }).select("-password"); // Exclude passwords
+
+      if (!admins.length) {
+          return res.status(404).json({ message: "No admins found." });
+      }
+
+      res.status(200).json(admins);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
