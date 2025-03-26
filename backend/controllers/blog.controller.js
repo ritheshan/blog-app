@@ -3,44 +3,49 @@ import { v2 as cloudinary } from 'cloudinary';
 import Blog from '../models/blog.model.js';
 import User from '../models/user.model.js'; // Assuming User model exists
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
-// Create a new blog with Cloudinary upload
 export const createBlog = async (req, res) => {
     try {
-        const { title,  category, about, createdBy } = req.body;
+        const { title, category, about, createdBy } = req.body;
 
-        if (!blogImage) {
-            return res.status(400).json({ message: "Blog image is required." });
+        // Ensure all required fields are present
+        if (!title || !category || !about || !createdBy) {
+            return res.status(400).json({ message: "All fields are required." });
         }
 
         if (about.length < 200) {
             return res.status(400).json({ message: "About section must be at least 200 characters long." });
         }
-        const allowedFormats = ["image/jpeg", "image/png", "image/jpg"];
-        const blogImage = req.file ? req.file : req.files[0];
-        
-        if (!allowedFormats.includes(blogImage.mimetype)) {
-          console.log("Error: Invalid photo format. Only JPEG, JPG, and PNG are allowed");
-          return res.status(400).json({ message: "Invalid photo format. Only JPEG, JPG, and PNG are allowed" });
+
+        const blogImage = req.files?.blogImage;
+
+        if (!blogImage) {
+            return res.status(400).json({ message: "Blog image is required." });
         }
 
-        // Find admin details (assuming 'createdBy' is the user's ID)
+        const allowedFormats = ["image/jpeg", "image/png", "image/jpg"];
+        if (!allowedFormats.includes(blogImage.mimetype)) {
+            return res.status(400).json({ message: "Invalid photo format. Only JPEG, JPG, and PNG are allowed." });
+        }
+
+        // Find the admin user who is creating the blog
         const admin = await User.findById(createdBy);
         if (!admin) {
             return res.status(404).json({ message: "Admin user not found." });
         }
 
         // Upload image to Cloudinary
-        const uploadResponse = await cloudinary.uploader.upload(blogImage.tempFilePath);
+        const uploadResponse = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream({ folder: "blogs" }, (error, result) => {
+              if (error) return reject(error);
+              return resolve(result);
+            });
+          
+            stream.end(blogImage.data); // Upload from memory
+          }); // Upload from memory buffer
 
         // Create new blog object
-        const newBlog = {
+        const newBlog = new Blog({
             title,
             blogImage: {
                 publicId: uploadResponse.public_id,
@@ -49,18 +54,20 @@ export const createBlog = async (req, res) => {
             category,
             about,
             adminName: admin.name,
-            adminPhoto: admin.photo, // Assuming User model has 'photo' field
+            adminPhoto: admin.photo, // Assuming User model has a 'photo' field
             createdBy: admin._id
-        };
+        });
 
-        // Save new blog in database
-        const savedBlog = await Blog.create(newBlog);
-        res.status(201).json("blog created successfully",savedBlog);
+        // Save the blog to the database
+        const savedBlog = await newBlog.save();
+        
+        res.status(201).json({ message: "Blog created successfully", blog: savedBlog });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error creating blog:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
-
 // Delete a blog
 export const deleteBlog = async (req, res) => {
     try {
@@ -73,22 +80,39 @@ export const deleteBlog = async (req, res) => {
     }
 }; 
 
-// Get all blogs
 export const getAllBlogs = async (req, res) => {
     try {
-        const blogs = await Blog.find().populate('createdBy', 'name email');
-        res.status(200).json(blogs);
+        const blogs = await Blog.find().populate('createdBy', 'name email photo');
+
+        const modifiedBlogs = blogs.map(blog => ({
+            _id: blog._id,
+            title: blog.title,
+            blogImage: blog.blogImage,
+            category: blog.category,
+            about: blog.about,
+            adminName: blog.createdBy.name,
+            adminPhoto: blog.createdBy.photo ? { url: blog.createdBy.photo } : null,  // Ensure object format
+            createdBy: blog.createdBy._id
+        }));
+
+        res.status(200).json(modifiedBlogs);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Get a blog by ID
 export const getBlogById = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id).populate('createdBy', 'name email');
+        const blog = await Blog.findById(req.params.id).populate('createdBy', 'name email photo');
         if (!blog) return res.status(404).json({ message: "Blog not found" });
-        res.status(200).json(blog);
+
+        // Convert adminPhoto to an object
+        const modifiedBlog = {
+            ...blog._doc,
+            adminPhoto: { url: blog.adminPhoto }
+        };
+
+        res.status(200).json(modifiedBlog);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

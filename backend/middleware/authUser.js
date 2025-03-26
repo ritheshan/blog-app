@@ -15,13 +15,13 @@ export const authenticateUser = async (req, res, next) => {
 
         // Verify the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        req.user = await User.findById(decoded.id).select("-password");
+        const user = await User.findById(decoded.id).select("-password");
 
-        if (!req.user) {
+        if (!user) {  // ✅ Corrected this check
             return res.status(401).json({ message: "User not found. Unauthorized." });
         }
-        req.user = user;
 
+        req.user = user; // ✅ Assign user correctly
         next(); // Proceed to the next middleware or route
     } catch (error) {
         return res.status(401).json({ message: "Invalid or expired token." });

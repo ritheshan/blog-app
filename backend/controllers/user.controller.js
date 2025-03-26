@@ -7,61 +7,72 @@ import { v2 as cloudinary } from 'cloudinary';
 export const registerUser = async (req, res) => {
   try {
     const { name, email, phone, education, role, password } = req.body;
-    
-    // Validate required fields
+    console.log(req.body);
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ message: "User photo is required" });
+    }
     if (!name || !email || !phone || !education || !role || !password) {
       console.log("Error: All required fields must be filled");
       return res.status(400).json({ message: "All required fields must be filled" });
     }
-    
-    // Validate photo upload
-    if (!req.file && (!req.files || req.files.length === 0)) {
-      console.log("Error: User photo is required");
+
+    const allowedFormats = ["image/jpeg", "image/png", "image/jpg"];
+    const photoFile = req.files?.photo;
+    if (!photoFile) {
+      console.log("Error: User photo is missing");
       return res.status(400).json({ message: "User photo is required" });
     }
-    
-    const allowedFormats = ["image/jpeg", "image/png", "image/jpg"];
-    const photoFile = req.file ? req.file : req.files[0];
-    
     if (!allowedFormats.includes(photoFile.mimetype)) {
-      console.log("Error: Invalid photo format. Only JPEG, JPG, and PNG are allowed");
+      console.log("Error: Invalid photo format");
       return res.status(400).json({ message: "Invalid photo format. Only JPEG, JPG, and PNG are allowed" });
     }
-    
-    const photo = photoFile.path; // Get photo path
 
-    //cloudinary upload resoponses
-    const cloudinaryResponse = await cloudinary.uploader.upload(photo.tempFilePath); 
-    if(!cloudinaryResponse){
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.log("Error: User with this email already exists");
+      return res.status(400).json({ message: "User with this email already exists" });
+    }
+
+    const cloudinaryResponse = await cloudinary.uploader.upload(photoFile.tempFilePath);
+    if (!cloudinaryResponse) {
       console.log("Error: Photo upload failed");
       return res.status(500).json({ message: "Photo upload failed" });
     }
-const hashedPassword = await bcrypt.hash(password, 10);
-    // Create new user
-     const newUser = new User({
-    name,
-    email,
-    phone,
-    photo: {
-      public_id: cloudinaryResponse.public_id,
-      url: cloudinaryResponse.url
-    },
-    education,
-    role,
-    password: hashedPassword,
-  });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      name,
+      email,
+      phone,
+      photo: {
+        public_id: cloudinaryResponse.public_id,
+        url: cloudinaryResponse.url,
+      },
+      education,
+      role,
+      password: hashedPassword,
+    });
+
     await newUser.save();
-    if (newUser) {
-  console.log("User registered successfully:", newUser);
-  await createTokenAndSaveCookie(newUser._id, res);
-  res.status(201).json({ message: "User registered successfully", user: newUser  ,token: token });
-}
+    console.log("User registered successfully:", newUser);
+
+    // ✅ FIX: Ensure token function doesn't modify res
+    try {
+      console.log("res before calling createTokenAndSaveCookie:", res);
+      const token = await createTokenAndSaveCookie(newUser._id,res);
+   
+      return res.status(201).json({ message: "User registered successfully", user: newUser, token });
+    } catch (tokenError) {
+      console.log("Error: Token creation failed", tokenError.message);
+      return res.status(500).json({ message: "Token creation failed" });
+    }
   } catch (error) {
     console.error("Error:", error.message);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
-
 // login user
 export const loginUser = async (req, res) => {
   try {

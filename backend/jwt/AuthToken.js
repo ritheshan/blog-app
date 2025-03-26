@@ -1,13 +1,16 @@
-
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
 const createTokenAndSaveCookie = async (userId, res) => {
   try {
+    if (!res) {
+      throw new Error("Response object (res) is undefined");
+    }
+
     // Generate JWT Token
     const token = jwt.sign(
       { id: userId },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
@@ -15,24 +18,23 @@ const createTokenAndSaveCookie = async (userId, res) => {
     await User.findByIdAndUpdate(userId, { token });
 
     // Set cookie options
+    const cookieExpiryDays = Number(process.env.COOKIE_EXPIRES_IN) || 7;
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      expires: new Date(Date.now() + process.env.COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+      sameSite: "lax",
+      path: "/",
+      expires: new Date(Date.now() + cookieExpiryDays * 24 * 60 * 60 * 1000),
     };
 
-    // Set cookie and send response
-    res.cookie("token", token, options).json({
-      success: true,
-      message: "Token generated, saved in cookie & database",
-      token,
-    });
-
-    return token;
+    // ✅ Fix: Ensure `res` is available before setting cookie
+    res.cookie("jwt", token, options);
+    return token; // Return token for further use
   } catch (error) {
     console.error("Error in creating token:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    if (res) {
+      res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
   }
 };
 
