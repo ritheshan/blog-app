@@ -1,18 +1,34 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { useAuth } from "../context/AuthProvider"; 
+import { useAuth } from "../context/AuthProvider";
 
 function CreateBlog() {
-  const { profile } = useAuth(); 
-
-  console.log("Profile data:", profile); // Debugging log
+  const { profile } = useAuth();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [about, setAbout] = useState("");
   const [blogImage, setBlogImage] = useState(null);
   const [blogImagePreview, setBlogImagePreview] = useState("");
+  const [loadingAI, setLoadingAI] = useState(false); // AI loading state
+
+  const handleGenerateContent = async () => {
+    if (!title) {
+      return toast.error("Enter a blog title first!");
+    }
+    setLoadingAI(true);
+
+    try {
+      const { data } = await axios.post("http://localhost:4001/api/chatbot/generate-content", { title });
+      setAbout(data.content);
+      toast.success("AI-generated content added! Feel free to edit.");
+    } catch (error) {
+      toast.error("Failed to generate content.");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
 
   const handleCreateBlog = async (e) => {
     e.preventDefault();
@@ -36,7 +52,7 @@ function CreateBlog() {
     formData.append("title", title);
     formData.append("category", category);
     formData.append("about", about);
-    formData.append("createdBy", profile?._id); 
+    formData.append("createdBy", profile?._id);
     formData.append("blogImage", blogImage);
 
     try {
@@ -93,9 +109,19 @@ function CreateBlog() {
             }} className="w-full px-3 py-2 border border-gray-400 rounded-md outline-none"/>
           </div>
 
+          {/* AI Content Generation Button */}
           <div className="space-y-2">
             <label className="block text-lg">About</label>
             <textarea rows="5" placeholder="Write something about your blog" value={about} onChange={(e) => setAbout(e.target.value)} className="w-full px-3 py-2 border border-gray-400 rounded-md outline-none"/>
+            
+            <button
+              type="button"
+              className="mt-2 px-4 py-2 bg-gray-700 text-white rounded-md"
+              onClick={handleGenerateContent}
+              disabled={loadingAI}
+            >
+              {loadingAI ? "Generating..." : "Generate with AI"}
+            </button>
           </div>
 
           <button type="submit" className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200">
