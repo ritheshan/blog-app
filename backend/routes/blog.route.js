@@ -18,13 +18,13 @@ router.post('/create', authenticateUser, authorizeAdmin, createBlog);
 router.delete('/delete/:id',authenticateUser,authorizeAdmin, deleteBlog);
 
 // Get all blogs
-router.get('/all-blog',authenticateUser,getAllBlogs);
+router.get('/all-blogs',authenticateUser,getAllBlogs);
 
 // Get a single blog by ID
 router.get('/blogbyid/:id', getBlogById);
 
 // get a all blog by admin
-router.get('/blogbyadmin/:id',authenticateUser,authorizeAdmin, getUserBlogs);
+router.get('/my-blogs',authenticateUser,authorizeAdmin, getUserBlogs);
 
 // Update a blog by ID
 router.put('/update/:id', authenticateUser,authorizeAdmin,updateBlog);
