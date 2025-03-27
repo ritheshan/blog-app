@@ -1,9 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import userRoutes from "./routes/user.route.js"; // Import user routes
-import blogRoutes from "./routes/blog.route.js"; // Import blog routes
-import chatbotRoutes from "./routes/chatbot.route.js"; // Import chatbot routes
+import userRoutes from "./routes/User.route.js"; // Import user routes
+import blogRoutes from "./routes/Blog.route.js"; // Import blog routes
+import chatbotRoutes from "./routes/Chatbot.route.js"; // Import chatbot routes
 import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from 'cloudinary';
 import cookieParser from "cookie-parser";
