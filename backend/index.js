@@ -29,7 +29,8 @@ app.use(cookieParser());
 console.log(process.env.FRONTEND_URL);
 
 app.use(cors({
-  origin: "*"
+  origin: "*",
+  credentials: true,
 }));
 
 app.use(express.urlencoded({ extended: true }));
