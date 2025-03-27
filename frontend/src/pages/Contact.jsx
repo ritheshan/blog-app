@@ -20,7 +20,7 @@ function Contact() {
       message: data.message,
     };
     try {
-      await axios.post("https://api.web3forms.com/submit", userInfo);
+      await axios.post(`https://api.web3forms.com/submit`, userInfo);
       toast.success("Message sent successfully");
     } catch (error) {
       toast.error("An error occurred");

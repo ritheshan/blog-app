@@ -20,7 +20,7 @@ function CreateBlog() {
     setLoadingAI(true);
 
     try {
-      const { data } = await axios.post("${import.meta.env.VITE_BACKEND_URL}/api/chatbot/generate-content", { title });
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/chatbot/generate-content`, { title });
       setAbout(data.content);
       toast.success("AI-generated content added! Feel free to edit.");
     } catch (error) {
@@ -57,7 +57,7 @@ function CreateBlog() {
 
     try {
       const { data } = await axios.post(
-        "${import.meta.env.VITE_BACKEND_URL}/api/blogs/create",
+        `${import.meta.env.VITE_BACKEND_URL}/api/blogs/create`,
         formData,
         {
           withCredentials: true,

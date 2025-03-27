@@ -48,7 +48,7 @@ function Register() {
     formData.append("photo", photo);
     try {
       const { data } = await axios.post(
-        "${import.meta.env.VITE_BACKEND_URL}/api/users/register",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,
         formData,
         {
           withCredentials: true,

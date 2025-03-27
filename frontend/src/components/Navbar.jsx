@@ -18,7 +18,7 @@ function Navbar() {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "${import.meta.env.VITE_BACKEND_URL}/api/users/logout",{},
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/logout`,{},
         { withCredentials: true },
       );
       console.log(data);
