@@ -6,8 +6,8 @@ import {
     updateBlog,
     deleteBlog,
     getUserBlogs
-} from '../controllers/blog.controller.js';
-import { authenticateUser, authorizeAdmin } from '../middleware/authUser.js';
+} from '../controllers/Blog.controller.js';
+import { authenticateUser, authorizeAdmin } from '../middleware/AuthUser.js';
 
 const router = express.Router();
 

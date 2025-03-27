@@ -1,6 +1,6 @@
-import User from "../models/user.model.js";
+import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
-import createTokenAndSaveCookie from "../jwt/authtoken.js";
+import createTokenAndSaveCookie from "../jwt/AuthToken.js";
 import { v2 as cloudinary } from 'cloudinary';
 
 

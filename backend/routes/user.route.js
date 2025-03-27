@@ -1,8 +1,8 @@
 import express from "express";
-import { logoutUser, registerUser } from "../controllers/user.controller.js";
-import { loginUser ,getMyProfile,getAdmins} from "../controllers/user.controller.js";
-import { authenticateUser } from "../middleware/authUser.js";
-import { get } from "mongoose";
+import { logoutUser, registerUser } from "../controllers/User.controller.js";
+import { loginUser ,getMyProfile,getAdmins} from "../controllers/User.controller.js";
+import { authenticateUser } from "../middleware/AuthUser.js";
+
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 
 import { v2 as cloudinary } from 'cloudinary';
-import Blog from '../models/blog.model.js';
-import User from '../models/user.model.js'; // Assuming User model exists
+import Blog from '../models/Blog.model.js';
+import User from '../models/User.model.js'; // Assuming User model exists
 
 
 export const createBlog = async (req, res) => {
