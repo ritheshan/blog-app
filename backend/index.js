@@ -29,11 +29,7 @@ app.use(cookieParser());
 console.log(process.env.FRONTEND_URL);
 
 app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: ["Content-Type", "Authorization"],
- 
+  origin: "*"
 }));
 
 app.use(express.urlencoded({ extended: true }));

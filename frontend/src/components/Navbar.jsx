@@ -18,7 +18,7 @@ function Navbar() {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:4001/api/users/logout",{},
+        "${process.env.REACT_APP_BACKEND_URL}/api/users/logout",{},
         { withCredentials: true },
       );
       console.log(data);
