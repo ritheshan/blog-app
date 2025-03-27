@@ -24,7 +24,7 @@ function Sidebar({ setComponent }) {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "${process.env.REACT_APP_BACKEND_URL}/api/users/logout",{},
+        "${import.meta.env.VITE_BACKEND_URL}/api/users/logout",{},
         { withCredentials: true }
       );
       toast.success(data.message);

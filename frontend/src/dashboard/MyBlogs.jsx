@@ -9,7 +9,7 @@ function MyBlogs() {
     const fetchMyBlogs = async () => {
       try {
         const { data } = await axios.get(
-          "${process.env.REACT_APP_BACKEND_URL}/api/blogs/my-blogs",
+          "${import.meta.env.VITE_BACKEND_URL}/api/blogs/my-blogs",
           { withCredentials: true }
         );
         console.log(data);
@@ -23,7 +23,7 @@ function MyBlogs() {
 
   const handleDelete = async (id) => {
     await axios
-      .delete(`${process.env.REACT_APP_BACKEND_URL}/api/blogs/delete/${id}`, {
+      .delete(`${import.meta.env.VITE_BACKEND_URL}/api/blogs/delete/${id}`, {
         withCredentials: true,
       })
       .then((res) => {

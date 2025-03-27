@@ -29,7 +29,7 @@ function UpdateBlog() {
     const fetchBlog = async () => {
       try {
         const { data } = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/blogs/blogbyid/${id}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/blogs/blogbyid/${id}`,
 
           {
             withCredentials: true,
@@ -61,7 +61,7 @@ function UpdateBlog() {
     formData.append("blogImage", blogImage);
     try {
       const { data } = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/blogs/update/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/blogs/update/${id}`,
         formData,
         {
           withCredentials: true,
