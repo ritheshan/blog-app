@@ -21,8 +21,8 @@ const createTokenAndSaveCookie = async (userId, res) => {
     const cookieExpiryDays = Number(process.env.COOKIE_EXPIRES_IN) || 7;
     const options = {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: false,
+      secure: true,
+      sameSite: None,
       path: "/",
       expires: new Date(Date.now() + cookieExpiryDays * 24 * 60 * 60 * 1000),
     };
