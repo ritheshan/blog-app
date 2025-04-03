@@ -29,7 +29,11 @@ app.use(cookieParser());
 console.log(process.env.FRONTEND_URL);
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: [
+    "https://blogapp-khaki-six.vercel.app",
+    "https://blogapp-git-main-ritheshs-projects-d70ba336.vercel.app",
+    "https://blogapp-ngm3bjyus-ritheshs-projects-d70ba336.vercel.app",
+  ], 
   credentials: true,
 }));
 
