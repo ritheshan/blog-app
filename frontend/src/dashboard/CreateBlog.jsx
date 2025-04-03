@@ -2,7 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthProvider";
-import TurndownService from "turndown"; // Import Markdown to text converter
+// import TurndownService from "turndown"; // Import Markdown to text converter
+import { marked } from "marked";
 
 function CreateBlog() {
   const { profile } = useAuth();
@@ -16,31 +17,33 @@ function CreateBlog() {
 
 
 
-const handleGenerateContent = async () => {
-  if (!title) {
-    return toast.error("Enter a blog title first!");
-  }
-  setLoadingAI(true);
-
-  try {
-    const { data } = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/chatbot/generate-content`, 
-      { title }
-    );
-
-    // ✅ Convert Markdown to plain text
-    const turndownService = new TurndownService();
-    const plainTextContent = turndownService.turndown(data.content);
-
-    // ✅ Set the cleaned text to "about" state
-    setAbout(plainTextContent);
-    toast.success("AI-generated content added! Feel free to edit.");
-  } catch (error) {
-    toast.error("Failed to generate content.");
-  } finally {
-    setLoadingAI(false);
-  }
-};
+  const handleGenerateContent = async () => {
+    if (!title) {
+      return toast.error("Enter a blog title first!");
+    }
+    setLoadingAI(true);
+  
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/chatbot/generate-content`, 
+        { title }
+      );
+  
+      // ✅ Convert Markdown to plain text
+      const plainTextContent = marked.parse(data.content)
+        .replace(/<\/?[^>]+(>|$)/g, "") // Remove any remaining HTML tags
+        .replace(/\*/g, "") // Remove asterisks (*)
+        .replace(/#/g, ""); // Remove hashes (#)
+  
+      // ✅ Set the cleaned text in "about" field
+      setAbout(plainTextContent);
+      toast.success("AI-generated content added! Feel free to edit.");
+    } catch (error) {
+      toast.error("Failed to generate content.");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
   const handleCreateBlog = async (e) => {
     e.preventDefault();
 
