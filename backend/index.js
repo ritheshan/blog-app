@@ -30,8 +30,7 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: [
-    "https://blogapp-khaki-six.vercel.app",
-    "https://blog-app-pink-rho.vercel.app",
+    "https://blog-app-xi-sandy-36.vercel.app",
     "https://blogapp-git-main-ritheshs-projects-d70ba336.vercel.app",
     "https://blogapp-ngm3bjyus-ritheshs-projects-d70ba336.vercel.app",
   ],
