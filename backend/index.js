@@ -26,15 +26,17 @@ cloudinary.config({
 app.use(express.json());
 
 app.use(cookieParser());
-console.log(process.env.FRONTEND_URL);
+
 
 app.use(cors({
   origin: [
     "https://blogapp-khaki-six.vercel.app",
     "https://blogapp-git-main-ritheshs-projects-d70ba336.vercel.app",
     "https://blogapp-ngm3bjyus-ritheshs-projects-d70ba336.vercel.app",
-  ], 
+  ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
 }));
 
 app.use(express.urlencoded({ extended: true }));

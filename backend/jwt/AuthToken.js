@@ -22,7 +22,7 @@ const createTokenAndSaveCookie = async (userId, res) => {
     const options = {
       httpOnly: false,
       secure: true,
-      sameSite: None,
+      sameSite: "None",
       path: "/",
       expires: new Date(Date.now() + cookieExpiryDays * 24 * 60 * 60 * 1000),
     };
