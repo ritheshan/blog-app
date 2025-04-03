@@ -43,9 +43,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware for file uploads
 app.use(fileUpload(
-  { useTempFiles: false,
+  { useTempFiles: true,
     // createParentPath: true,
-    // tempFileDir: "/tmp/",
+    tempFileDir: "/tmp/",
   }
 ));
 
