@@ -9,24 +9,20 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-  
     validate: [validator.isEmail, "Please enter a valid email"],
   },
   phone: {
     type: Number,
     required: true,
-   
   },
   photo: {
-    
-      public_id: {
-        type: String,
-        required: true
-      },
-      url: {
-        type: String,
-        required: true
-      
+    public_id: {
+      type: String,
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
     }
   },
   education: {
@@ -45,10 +41,10 @@ const userSchema = new mongoose.Schema({
     minlength: 8, // Minimum password length
   },
   createdAt: { type: Date, default: Date.now },
-  token : {
+  token: {
     type: String,
   }
 });
 
-const User = mongoose.model("User", userSchema);
-export default User; 
+const User = mongoose.model("User", userSchema, 'users');
+export default User;

@@ -8,6 +8,7 @@ import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from 'cloudinary';
 import cookieParser from "cookie-parser";
 import cors from "cors";  
+import morgan from "morgan"; // Import morgan for logging
 
 dotenv.config(); // Load environment variables
 
@@ -28,18 +29,35 @@ app.use(express.json());
 app.use(cookieParser());
 
 
+// Configure CORS for development and production
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:5173",
+  "https://blog-app-xi-sandy-36.vercel.app",
+  "https://blogapp-git-main-ritheshs-projects-d70ba336.vercel.app",
+  "https://blogapp-ngm3bjyus-ritheshs-projects-d70ba336.vercel.app",
+  // Add any additional production/staging URLs here
+];
+
 app.use(cors({
-  origin: [
-    "https://blog-app-xi-sandy-36.vercel.app",
-    "https://blogapp-git-main-ritheshs-projects-d70ba336.vercel.app",
-    "https://blogapp-ngm3bjyus-ritheshs-projects-d70ba336.vercel.app",
-  ],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
+  optionsSuccessStatus: 204
 }));
 
 app.use(express.urlencoded({ extended: true }));
+// Middleware for logging requests
+app.use(morgan("dev")); // Use morgan to log requests in development mode
 
 // Middleware for file uploads
 app.use(fileUpload(
@@ -72,6 +90,17 @@ cloudinary.config({
 
 app.get("/", (req, res) => {
   res.send("Hello World with .env and MongoDB!");
+});
+
+// Health check route for monitoring
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+    service: "blog-app-backend"
+  });
 });
 
 app.listen(port, () => {
