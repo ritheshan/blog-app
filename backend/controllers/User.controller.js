@@ -48,7 +48,7 @@ export const registerUser = async (req, res) => {
       phone,
       photo: {
         public_id: cloudinaryResponse.public_id,
-        url: cloudinaryResponse.url,
+        url: cloudinaryResponse.secure_url,
       },
       education,
       role,
